@@ -1,5 +1,5 @@
 // MODELS
-const Pet = require('../models/pet');
+const Pet = require('../models/pet.js');
 
 // PET ROUTES
 module.exports = (app) => {

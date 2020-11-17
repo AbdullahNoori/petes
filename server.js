@@ -1,7 +1,10 @@
+
+
 if (!process.env.PORT) {
   require('dotenv').config()
   process.env.NODE_ENV = "dev"
 }
+
 
 const express = require('express');
 const path = require('path');
@@ -14,7 +17,7 @@ const methodOverride = require('method-override')
 const app = express();
 
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/petes-pet');
+mongoose.connect('mongodb://localhost/petes-pets',  { useNewUrlParser: true });
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -41,6 +44,8 @@ app.use((req, res, next) => {
   next(err);
 });
 
+
+
 // error handler
 app.use((err, req, res, next) => {
   // set locals, only providing error in development
@@ -51,5 +56,7 @@ app.use((err, req, res, next) => {
   res.status(err.status || 500);
   res.render('error');
 });
+
+app.locals.PUBLIC_STRIPE_API_KEY = process.env.PUBLIC_STRIPE_API_KEY
 
 module.exports = app;
