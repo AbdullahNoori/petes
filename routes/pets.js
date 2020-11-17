@@ -1,5 +1,5 @@
 // MODELS
-const Pet = require('../models/pet.js');
+const Pet = require('../models/pet');
 
 // PET ROUTES
 module.exports = (app) => {
@@ -33,17 +33,44 @@ module.exports = (app) => {
 
 
   // CREATE PET
-  app.post('/pets', (req, res) => {
-    var pet = new Pet(req.body);
+  // app.post('/pets', (req, res) => {
+  //   var pet = new Pet(req.body);
 
-    pet.save()
-      .then((pet) => {
-        res.redirect(`/pets/${pet._id}`);
-      })
-      .catch((err) => {
-        // Handle Errors
-      }) ;
-  });
+  //   pet.save()
+  //     .then((pet) => {
+  //       res.redirect(`/pets/${pet._id}`);
+  //     })
+  //     .catch((err) => {
+  //       // Handle Errors
+  //     }) ;
+  // });
+
+    // CREATE PET
+  app.post('/pets', upload.single('avatar'), (req, res, next) => {
+    var pet = new Pet(req.body);
+    pet.save(function (err) {
+      if (req.file) {
+        // Upload the images
+        client.upload(req.file.path, {}, function (err, versions, meta) {
+          if (err) { return res.status(400).send({ err: err }) };
+
+          // Pop off the -square and -standard and just use the one URL to grab the image
+          versions.forEach(function (image) {
+            var urlArray = image.url.split('-');
+            urlArray.pop();
+            var url = urlArray.join('-');
+            pet.avatarUrl = url;
+            pet.save();
+          });
+
+          res.send({ pet: pet });
+        });
+      } else {
+        res.send({ pet: pet });
+      }
+    })
+  })
+
 
   // SHOW PET
   app.get('/pets/:id', (req, res) => {
