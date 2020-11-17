@@ -11,6 +11,27 @@ module.exports = (app) => {
     res.render('pets-new');
   });
 
+   // SEARCH PET
+   app.get('/search', function (req, res) {
+    Pet
+      .find(
+          { $text : { $search : req.query.term } },
+          { score : { $meta: "textScore" } }
+      )
+      .sort({ score : { $meta : 'textScore' } })
+      .limit(20)
+      .exec(function(err, pets) {
+        if (err) { return res.status(400).send(err) }
+
+        if (req.header('Content-Type') == 'application/json') {
+          return res.json({ pets: pets });
+        } else {
+          return res.render('pets-index', { pets: pets, term: req.query.term });
+        }
+    });
+  });
+
+
   // CREATE PET
   app.post('/pets', (req, res) => {
     var pet = new Pet(req.body);
